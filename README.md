@@ -1,0 +1,1 @@
+![Blockchain OMS Architecture](blockchain-order-automation.png)
