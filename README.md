@@ -2,7 +2,7 @@
 
 A full-stack application for managing orders using blockchain technology, built with Node.js, Express, TypeScript, React, Sequelize, and Hyperledger Fabric.
 
-![alt text](how-blockchain-works.jpg)
+![BlockChain](how-blockchain-works.jpg)
 
 ## Features
 - User registration and authentication (JWT)
