@@ -10,7 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Define your models below
+
+model Product {
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String?
+  price          Float
+  stock_quantity Int     @default(0)
+  createdBy      Int
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -30,4 +39,18 @@ model Order {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  auditLogs AuditLog[]
+}
+
+model AuditLog {
+  id               Int      @id @default(autoincrement())
+  order_id         Int
+  action           String
+  performed_by     Int
+  old_hash         String?
+  new_hash         String
+  blockchain_tx_id String?
+  timestamp        DateTime @default(now())
+
+  Order            Order    @relation(fields: [order_id], references: [id])
 }
