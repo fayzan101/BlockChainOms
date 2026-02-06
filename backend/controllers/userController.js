@@ -1,6 +1,6 @@
 const prisma = require('../config/prismaClient');
 
-// Get all users
+
 exports.getUsers = async (req, res) => {
 	try {
 		const users = await prisma.user.findMany();
@@ -10,7 +10,7 @@ exports.getUsers = async (req, res) => {
 	}
 };
 
-// Get user by ID
+
 exports.getUserById = async (req, res) => {
 	try {
 		const user = await prisma.user.findUnique({
@@ -23,7 +23,7 @@ exports.getUserById = async (req, res) => {
 	}
 };
 
-// Create user
+
 exports.createUser = async (req, res) => {
 	try {
 		const { name, email, password, role } = req.body;
@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
 	}
 };
 
-// Update user
+
 exports.updateUser = async (req, res) => {
 	try {
 		const { name, email, password, role } = req.body;
@@ -50,7 +50,7 @@ exports.updateUser = async (req, res) => {
 	}
 };
 
-// Delete user
+
 exports.deleteUser = async (req, res) => {
 	try {
 		await prisma.user.delete({

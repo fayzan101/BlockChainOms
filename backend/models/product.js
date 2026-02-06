@@ -1,1 +1,0 @@
-// Sequelize model removed. Use Prisma for all product operations.

@@ -90,7 +90,7 @@ Order.init({
     timestamps: true
 });
 
-// Define relationship
+
 User.hasMany(Order, { foreignKey: "userId" });
 Order.belongsTo(User, { foreignKey: "userId" });
 ```
@@ -142,12 +142,12 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 
-// Test route
+
 app.get("/api/ping", (req: Request, res: Response) => {
     res.send("pong");
 });
 
-// Sync DB
+
 sequelize.sync({ alter: true })
     .then(() => console.log("Database synced successfully"))
     .catch(err => console.log("Error syncing database:", err));
