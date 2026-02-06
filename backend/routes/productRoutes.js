@@ -3,7 +3,7 @@ const router = express.Router();
 const { createProduct, getProducts, updateProduct, deleteProduct } = require('../controllers/productController');
 const { authMiddleware } = require('../middleware/auth');
 
-// Only admin/supplier can create/update/delete
+
 function roleCheck(roles) {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {

@@ -11,9 +11,9 @@ exports.verifyOrder = async (req, res) => {
 		const order = await prisma.order.findUnique({ where: { id: orderId } });
 		if (!order) return res.status(404).json({ error: 'Order not found' });
 
-		// Generate current hash
+
 		const currentHash = generateOrderHash(order);
-		// Get blockchain hash from Ethereum
+
 		const blockchainHash = await getHashFromChain(orderId);
 
 		const verified = currentHash === blockchainHash;
@@ -29,7 +29,7 @@ exports.verifyOrder = async (req, res) => {
 	}
 };
 
-// Get all orders
+
 exports.getOrders = async (req, res) => {
 	try {
 		const orders = await prisma.order.findMany({ include: { user: true } });
@@ -40,7 +40,7 @@ exports.getOrders = async (req, res) => {
 	}
 };
 
-// Get order by ID
+
 exports.getOrderById = async (req, res) => {
 	try {
 		const order = await prisma.order.findUnique({
@@ -55,11 +55,11 @@ exports.getOrderById = async (req, res) => {
 	}
 };
 
-// Create order
+
 exports.createOrder = async (req, res) => {
 	try {
 		const { item, quantity, userId } = req.body;
-		// Inventory management: check and reduce stock
+
 		const product = await prisma.product.findUnique({ where: { name: item } });
 		if (!product) {
 			return res.status(404).json({ error: 'Product not found' });
@@ -67,7 +67,7 @@ exports.createOrder = async (req, res) => {
 		if (product.stock_quantity < quantity) {
 			return res.status(400).json({ error: 'Insufficient stock' });
 		}
-		// Reduce stock
+
 		await prisma.product.update({
 			where: { id: product.id },
 			data: { stock_quantity: { decrement: quantity } }
@@ -77,13 +77,13 @@ exports.createOrder = async (req, res) => {
 			data: { item, quantity, userId },
 		});
 
-		// Generate hash
+
 		const hash = generateOrderHash(order);
 
-		// Optionally store hash in DB for quick reference
-		// await prisma.order.update({ where: { id: order.id }, data: { blockchainHash: hash } });
 
-		// Store hash on Ethereum
+
+
+
 		await storeHashOnChain(order.id, hash);
 
 		res.status(201).json(order);
@@ -93,7 +93,7 @@ exports.createOrder = async (req, res) => {
 	}
 };
 
-// Update order
+
 exports.updateOrder = async (req, res) => {
 	try {
 		const { item, quantity, userId, status } = req.body;
@@ -101,7 +101,7 @@ exports.updateOrder = async (req, res) => {
 		const oldOrder = await prisma.order.findUnique({ where: { id: orderId } });
 		if (!oldOrder) return res.status(404).json({ error: 'Order not found' });
 
-		// Role-based restrictions
+
 		const userRole = req.user.role;
 		const userIdFromToken = req.user.id;
 		if (userRole === 'customer' && oldOrder.userId !== userIdFromToken) {
@@ -117,7 +117,7 @@ exports.updateOrder = async (req, res) => {
 			return res.status(403).json({ error: 'Suppliers cannot change order items or quantity' });
 		}
 
-		// Status workflow enforcement
+
 		const validTransitions = {
 			pending: ['confirmed', 'cancelled'],
 			confirmed: ['shipped', 'cancelled'],
@@ -154,7 +154,7 @@ exports.updateOrder = async (req, res) => {
 			timestamp: order.updatedAt
 		});
 
-		// Store new hash on blockchain
+
 		const blockchainTxId = await storeOrderHashOnBlockchain(order.id, newHash);
 
 		await prisma.auditLog.create({
@@ -175,7 +175,7 @@ exports.updateOrder = async (req, res) => {
 	}
 };
 
-// Delete order
+
 exports.deleteOrder = async (req, res) => {
 	try {
 		await prisma.order.delete({

@@ -7,7 +7,7 @@ require("dotenv").config();
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
-// Load ABI from file
+
 const contractABI = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../abi/OrderHashStore.json"), "utf8")
 );
