@@ -4,10 +4,12 @@
   "main": "frontend/main.js",
   "scripts": {
     "dev": "node backend/server.js",
-    "start": "electron .",
+    "start": "node backend/server.js",
+    "electron:start": "electron .",
     "electron": "electron .",
     "electron:dev": "set NODE_ENV=development && electron .",
-    "build": "tsc",
+    "build": "prisma generate",
+    "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
@@ -30,10 +32,10 @@
     "jsonwebtoken": "^9.0.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "@prisma/client": "^6.19.1"
   },
   "devDependencies": {
-    "@prisma/client": "^6.19.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
