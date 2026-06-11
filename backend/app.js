@@ -19,6 +19,14 @@ const addressRoutes = require('./routes/addressRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const supplierRoutes = require('./routes/supplierRoutes');
 
+function getApiBaseUrl() {
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  const port = process.env.PORT || 5000;
+  return `http://localhost:${port}`;
+}
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -27,7 +35,7 @@ const swaggerOptions = {
       version: '2.0.0',
       description: 'REST API for the Blockchain Order Management System',
     },
-    servers: [{ url: 'http://localhost:5000', description: 'Local development server' }],
+    servers: [{ url: getApiBaseUrl(), description: 'API server' }],
     tags: [
       { name: 'Health', description: 'Server health' },
       { name: 'Authentication', description: 'Registration, login, profile' },
@@ -63,11 +71,17 @@ function createApp() {
   const app = express();
   const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: process.env.VERCEL ? false : undefined,
+  }));
   app.use(cors());
   app.use(express.json());
 
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  const swaggerUiOptions = {
+    customSiteTitle: 'Blockchain OMS API',
+    swaggerOptions: { persistAuthorization: true },
+  };
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
   app.get('/api-docs.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
