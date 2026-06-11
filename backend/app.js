@@ -19,7 +19,12 @@ const addressRoutes = require('./routes/addressRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const supplierRoutes = require('./routes/supplierRoutes');
 
-function getApiBaseUrl() {
+function resolveServerUrl(req) {
+  const proto = req.get('x-forwarded-proto') || req.protocol || 'https';
+  const host = req.get('x-forwarded-host') || req.get('host');
+  if (host) {
+    return `${proto}://${host}`;
+  }
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
@@ -33,9 +38,9 @@ const swaggerOptions = {
     info: {
       title: 'Blockchain OMS API',
       version: '2.0.0',
-      description: 'REST API for the Blockchain Order Management System',
+      description: 'REST API for the Blockchain Order Management System. Use the production URL (block-chain-oms.vercel.app) in Swagger — preview deployment URLs require Vercel login and may fail with "Failed to fetch".',
     },
-    servers: [{ url: getApiBaseUrl(), description: 'API server' }],
+    servers: [{ url: '/', description: 'Current host (use this in the browser)' }],
     tags: [
       { name: 'Health', description: 'Server health' },
       { name: 'Authentication', description: 'Registration, login, profile' },
@@ -71,10 +76,11 @@ function createApp() {
   const app = express();
   const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
+  const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_URL);
   app.use(helmet({
-    contentSecurityPolicy: process.env.VERCEL ? false : undefined,
+    contentSecurityPolicy: isVercel ? false : undefined,
   }));
-  app.use(cors());
+  app.use(cors({ origin: true, credentials: true }));
   app.use(express.json());
 
   const swaggerUiOptions = {
@@ -83,8 +89,12 @@ function createApp() {
   };
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
   app.get('/api-docs.json', (req, res) => {
+    const spec = {
+      ...swaggerSpec,
+      servers: [{ url: resolveServerUrl(req), description: 'Current server' }],
+    };
     res.setHeader('Content-Type', 'application/json');
-    res.send(swaggerSpec);
+    res.json(spec);
   });
 
   const authLimiter = rateLimit({
