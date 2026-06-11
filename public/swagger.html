@@ -7,14 +7,33 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.31.0/swagger-ui.css" />
   <style>
     body { margin: 0; background: #fafafa; }
+    .swagger-banner {
+      background: #1a1a2e;
+      color: #e8e8e8;
+      padding: 10px 16px;
+      font: 14px/1.4 system-ui, sans-serif;
+      border-bottom: 1px solid #333;
+    }
+    .swagger-banner a { color: #7eb8ff; }
+    .swagger-banner strong { color: #fff; }
   </style>
 </head>
 <body>
+  <div class="swagger-banner" id="swagger-banner" hidden>
+    <strong>Tip:</strong> Use
+    <a href="https://block-chain-oms.vercel.app/api-docs/">production Swagger</a>
+    for testing. Preview URLs (<code>*.vercel.app</code> branch deploys) are behind Vercel login and often show
+    <em>Failed to fetch</em> in Try it out.
+  </div>
   <div id="swagger-ui"></div>
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.31.0/swagger-ui-bundle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.31.0/swagger-ui-standalone-preset.js"></script>
   <script>
     window.onload = function () {
+      if (!/block-chain-oms\.vercel\.app$/i.test(location.hostname)) {
+        document.getElementById('swagger-banner').hidden = false;
+      }
+
       window.ui = SwaggerUIBundle({
         url: '/api-docs.json',
         dom_id: '#swagger-ui',
@@ -23,6 +42,10 @@
         plugins: [SwaggerUIBundle.plugins.DownloadUrl],
         layout: 'StandaloneLayout',
         persistAuthorization: true,
+        requestInterceptor: function (req) {
+          req.credentials = 'include';
+          return req;
+        },
       });
     };
   </script>
