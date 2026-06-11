@@ -2,12 +2,23 @@
   "version": 2,
   "buildCommand": "npm run build",
   "installCommand": "npm install",
+  "outputDirectory": "public",
   "functions": {
     "api/index.js": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "memory": 1024,
+      "includeFiles": [
+        "backend/**",
+        "prisma/**",
+        "services/**"
+      ]
     }
   },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/api-docs", "destination": "/api" },
+    { "source": "/api-docs/(.*)", "destination": "/api" },
+    { "source": "/api-docs.json", "destination": "/api" },
+    { "source": "/health", "destination": "/api" }
   ]
 }
