@@ -12,9 +12,10 @@
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/api-docs", "destination": "/api" },
-    { "source": "/api-docs/(.*)", "destination": "/api" },
+    { "source": "/api-docs", "destination": "/swagger.html" },
+    { "source": "/api-docs/", "destination": "/swagger.html" },
     { "source": "/api-docs.json", "destination": "/api" },
-    { "source": "/health", "destination": "/api" }
+    { "source": "/health", "destination": "/api" },
+    { "source": "/api/ping", "destination": "/api" }
   ]
 }
