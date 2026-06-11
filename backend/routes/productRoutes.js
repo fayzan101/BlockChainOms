@@ -1,21 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const { createProduct, getProducts, updateProduct, deleteProduct } = require('../controllers/productController');
+const productController = require('../controllers/productController');
 const { authMiddleware } = require('../middleware/auth');
+const roleCheck = require('../middleware/roleCheck');
+const validate = require('../middleware/validate');
+const {
+  createProductSchema,
+  updateProductSchema,
+  idParamSchema,
+  searchQuerySchema,
+} = require('../validators/productValidators');
 
+router.get('/search', validate(searchQuerySchema, 'query'), productController.searchProducts);
+router.get('/low-stock', productController.getLowStockProducts);
+router.get('/', productController.getProducts);
+router.get('/:id', validate(idParamSchema, 'params'), productController.getProductById);
 
-function roleCheck(roles) {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden' });
-    }
-    next();
-  };
-}
+router.post(
+  '/',
+  authMiddleware,
+  roleCheck(['admin', 'supplier']),
+  validate(createProductSchema),
+  productController.createProduct,
+);
 
-router.post('/', authMiddleware, roleCheck(['admin', 'supplier']), createProduct);
-router.get('/', getProducts);
-router.put('/:id', authMiddleware, roleCheck(['admin', 'supplier']), updateProduct);
-router.delete('/:id', authMiddleware, roleCheck(['admin', 'supplier']), deleteProduct);
+router.put(
+  '/:id',
+  authMiddleware,
+  roleCheck(['admin', 'supplier']),
+  validate(idParamSchema, 'params'),
+  validate(updateProductSchema),
+  productController.updateProduct,
+);
+
+router.delete(
+  '/:id',
+  authMiddleware,
+  roleCheck(['admin', 'supplier']),
+  validate(idParamSchema, 'params'),
+  productController.deleteProduct,
+);
 
 module.exports = router;
