@@ -1,6 +1,5 @@
 
 
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,35 +9,52 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
 
 model Product {
-  id             Int      @id @default(autoincrement())
-  name           String
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
   description    String?
   price          Float
-  stock_quantity Int     @default(0)
+  stock_quantity Int             @default(0)
   createdBy      Int
+  categoryId     Int?
+  category       Category?       @relation(fields: [categoryId], references: [id])
+  stockMovements StockMovement[]
+  reviews        Review[]
+
+  @@index([categoryId])
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("customer")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  role          String         @default("customer")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  orders        Order[]
+  notifications Notification[]
+  addresses     Address[]
+  reviews       Review[]
 }
 
 model Order {
-  id        Int      @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   item      String
   quantity  Int
+  status    String     @default("pending")
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   auditLogs AuditLog[]
 }
 
@@ -52,5 +68,56 @@ model AuditLog {
   blockchain_tx_id String?
   timestamp        DateTime @default(now())
 
-  Order            Order    @relation(fields: [order_id], references: [id])
+  Order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+model StockMovement {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  change      Int
+  reason      String
+  referenceId Int?
+  performedBy Int
+  note        String?
+  createdAt   DateTime @default(now())
+}
+
+model Address {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  street     String
+  city       String
+  state      String?
+  postalCode String
+  country    String   @default("US")
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([productId, userId])
 }
