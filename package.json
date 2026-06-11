@@ -7,7 +7,7 @@
     "start": "electron .",
     "electron": "electron .",
     "electron:dev": "set NODE_ENV=development && electron .",
-    "build": "tsc",
+    "build": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
